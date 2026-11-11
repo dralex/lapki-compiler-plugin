@@ -20,10 +20,12 @@
 #
 #  -----------------------------------------------------------------------------
 
-"""The test helpers: a WebSocket server of the standard library."""
+"""The test helpers: a WebSocket server of the standard library and the stub
+compiler on it, replaying the reply shapes of lapki-compiler."""
 
 import base64
 import hashlib
+import json
 import os
 import socket
 import struct
@@ -34,12 +36,32 @@ import pytest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
+DIAGRAMS = os.path.join(ROOT, 'tests', 'diagrams')
+GOOD = os.path.join(ROOT, 'tests', 'good')
+SIBLINGS = os.path.dirname(ROOT)
+
+# the pure-Python module of the sibling checkout when it is not installed
+try:
+    import cyberiadaml_py  # noqa: F401 pylint: disable=unused-import
+except ImportError:
+    if os.path.isdir(os.path.join(SIBLINGS, 'cyberiadaml-py')):
+        sys.path.append(os.path.join(SIBLINGS, 'cyberiadaml-py'))
+try:
+    import CyberiadaML  # noqa: F401 pylint: disable=unused-import
+    BINDING = True
+except ImportError:
+    BINDING = False
 
 # pylint: disable=wrong-import-position
 from lapki_build import websocket as ws  # noqa: E402
 
 POLL = 0.05
 WAIT = 10.0
+
+
+def diagram(name):
+    """The path of a test diagram."""
+    return os.path.join(DIAGRAMS, name + '.graphml')
 
 
 class Peer:
@@ -212,6 +234,101 @@ def server():
     yield start
     for item in servers:
         item.close()
+
+
+ARDUINO = 'arduino-cli compile --export-binaries -b arduino:avr:uno'
+HEX = b':00000001FF\n'
+
+
+def command(return_code=0, stderr='', stdout='', text=ARDUINO):
+    """A command of a machine in the reply."""
+    return {'command': text, 'return_code': return_code, 'stdout': stdout,
+            'stderr': stderr}
+
+
+def machine(machine_id, commands=None, built=True):
+    """A machine of the reply: the sources always, the firmware when built."""
+    commands = [command()] if commands is None else commands
+    ok = built and all(c['return_code'] == 0 for c in commands)
+    return {
+        'result': 'OK' if ok else 'NOTOK', 'name': machine_id,
+        'commands': commands,
+        'binary': [{'filename': 'sketch', 'extension': 'ino.hex',
+                    'fileContent': base64.b64encode(HEX).decode()}]
+        if ok else [],
+        'source': [{'filename': 'sketch', 'extension': 'ino',
+                    'fileContent': '// the machine {}\n'.format(machine_id)},
+                   {'filename': 'sketch', 'extension': 'h',
+                    'fileContent': '#pragma once\n'}] if built else []}
+
+
+def reply(*machines):
+    """The reply of the compiler."""
+    return {'result': 'OK' if all(m['result'] == 'OK' for m in machines)
+            else 'NOTOK', 'state_machines': {m['name']: m for m in machines}}
+
+
+def rejected(machine_id, message):
+    """The reply of a machine the compiler rejects."""
+    return reply(machine(machine_id, [command(-1, message,
+                                              text='Валидация МС')],
+                         built=False))
+
+
+INTERNAL = reply(machine('', [command(-2, 'Internal error!',
+                                      text='compiler job')], built=False))
+
+
+class Compiler:  # pylint: disable=too-few-public-methods
+    """The stub compiler: the route /main with the replies queued; a reply
+    is a JSON object or a callable(peer) doing something else."""
+
+    def __init__(self, start):
+        self.replies = []
+        self.platforms = {}
+        self.received = []
+        self.server = start(self._handle)
+        self.url = self.server.url
+        self.link = '127.0.0.1:{}'.format(self.server.port)
+
+    def _handle(self, peer):
+        while True:
+            word = peer.message()
+            if word is None:
+                return
+            if word == 'cgml':
+                self.received.append((word, peer.message()))
+                answer = self.replies.pop(0) if self.replies else INTERNAL
+                if callable(answer):
+                    answer(peer)  # pylint: disable=not-callable
+                    continue
+                peer.send_text(json.dumps(answer, ensure_ascii=True))
+                if '' in answer['state_machines']:
+                    peer.close()
+            elif word == 'get_platform_json':
+                key = (peer.message(), peer.message())
+                self.received.append((word,) + key)
+                if key not in self.platforms:
+                    peer.send_text('Unknown platform {} {}'.format(*key))
+                    peer.close()
+                    continue
+                peer.send_text('raw-platform-scheme')
+                peer.send_text(json.dumps(self.platforms[key]))
+            else:
+                peer.send_text('Unknown {}!'.format(word))
+
+
+@pytest.fixture
+def compiler(server):
+    """The stub compiler of a test."""
+    return Compiler(server)
+
+
+@pytest.fixture
+def binding():
+    """Skip a test that writes the Lapki dialect without the binding."""
+    if not BINDING:
+        pytest.skip('no CyberiadaML binding (libcyberiadamlpp-py)')
 
 
 @pytest.fixture(autouse=True)

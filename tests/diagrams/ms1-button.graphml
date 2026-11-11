@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns">
+  <data key="gFormat">Cyberiada-GraphML-1.0</data>
+  <key id="gFormat" for="graphml" attr.name="format" attr.type="string" />
+  <key id="dName" for="graph" attr.name="name" attr.type="string" />
+  <key id="dName" for="node" attr.name="name" attr.type="string" />
+  <key id="dStateMachine" for="graph" attr.name="stateMachine" attr.type="string" />
+  <key id="dGeometry" for="node" attr.name="geometry" />
+  <key id="dNote" for="node" attr.name="note" attr.type="string" />
+  <key id="dVertex" for="node" attr.name="vertex" attr.type="string" />
+  <key id="dData" for="node" attr.name="data" attr.type="string" />
+  <key id="dData" for="edge" attr.name="data" attr.type="string" />
+  <graph id="G0" edgedefault="directed">
+    <data key="dStateMachine" />
+    <data key="dName">Button</data>
+    <node id="nMeta">
+      <data key="dNote">formal</data>
+      <data key="dName">CGML_META</data>
+      <data key="dData">standardVersion/ 1.0
+
+platform/ tjc-ms1-btn-a2
+
+platformVersion/ 1.0
+
+name/ Button</data>
+    </node>
+    <node id="G0init">
+      <data key="dVertex">initial</data>
+      <data key="dGeometry">
+        <point x="20" y="20" />
+      </data>
+    </node>
+    <node id="G0idle">
+      <data key="dName">Idle</data>
+      <data key="dGeometry">
+        <rect x="60" y="60" width="300" height="90" />
+      </data>
+    </node>
+    <edge id="G0e0" source="G0init" target="G0idle" />
+  </graph>
+</graphml>

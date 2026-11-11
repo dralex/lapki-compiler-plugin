@@ -1,0 +1,15 @@
+{
+  "exit": 0,
+  "files": {
+    "Blinker": [
+      "sketch.h",
+      "sketch.ino",
+      "sketch.ino.eep",
+      "sketch.ino.elf",
+      "sketch.ino.hex",
+      "sketch.ino.with_bootloader.bin",
+      "sketch.ino.with_bootloader.hex"
+    ]
+  },
+  "findings": []
+}

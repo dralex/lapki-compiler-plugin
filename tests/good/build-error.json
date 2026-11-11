@@ -1,0 +1,17 @@
+{
+  "exit": 1,
+  "files": {
+    "Blinker": [
+      "sketch.h",
+      "sketch.ino"
+    ]
+  },
+  "findings": [
+    [
+      "error",
+      "lapki-build",
+      "G0",
+      "arduino-cli"
+    ]
+  ]
+}

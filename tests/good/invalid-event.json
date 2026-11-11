@@ -1,0 +1,12 @@
+{
+  "exit": 1,
+  "files": {},
+  "findings": [
+    [
+      "error",
+      "lapki-validation",
+      "G0",
+      null
+    ]
+  ]
+}
