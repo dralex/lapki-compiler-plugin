@@ -1,0 +1,19 @@
+{
+  "Lapki Compiler": "Компилятор Lapki",
+  "Builds the state machines of the diagram with lapki-compiler: the sources and the firmware of its platform (Arduino Uno, MS-TYuK, ...). The installed compiler runs on this computer; with a remote compiler set, the diagram is sent to that server": "Собирает машины состояний диаграммы компилятором lapki-compiler: исходные тексты и прошивку для её платформы (Arduino Uno, МС-ТЮК, ...). Установленный компилятор работает на этом компьютере; если задан удалённый компилятор, диаграмма отправляется на этот сервер",
+  "Remote compiler": "Удалённый компилятор",
+  "ws://host:port or host:port of a lapki-compiler server; empty - the installed compiler on this computer": "ws://узел:порт или узел:порт сервера lapki-compiler; пусто - установленный компилятор на этом компьютере",
+  "Local compiler": "Локальный компилятор",
+  "The installed lapki-compiler: a name on PATH or a path": "Установленный lapki-compiler: имя в PATH или путь",
+  "Timeout, s": "Время ожидания, с",
+  "How long to wait for the compiler; 0 - no limit": "Сколько ждать компилятор; 0 - без ограничения",
+  "Output directory": "Каталог результатов",
+  "The sources and the firmware go to its subdirectory per state machine": "Исходные тексты и прошивка записываются в его подкаталог для каждой машины состояний",
+  "Build...": "Собрать...",
+  "Generate the sources of every state machine and build its firmware": "Сгенерировать исходные тексты каждой машины состояний и собрать её прошивку",
+  "Set the platform and its version in the diagram (e.g. ArduinoUno 1.0)": "Задайте в диаграмме платформу и её версию (например, ArduinoUno 1.0)",
+  "Show the code": "Показать код",
+  "Show the generated sources of every state machine in the Output tab": "Показать сгенерированные исходные тексты каждой машины состояний во вкладке вывода",
+  "Check": "Проверить",
+  "Ask the compiler whether it can build the diagram: the platform, its toolchain, the ids, the size": "Спросить компилятор, может ли он собрать диаграмму: платформа, её инструменты, идентификаторы, размер"
+}

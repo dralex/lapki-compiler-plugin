@@ -34,6 +34,7 @@ from . import __version__
 from . import check as checking
 from . import document as documents
 from . import protocol, report, server, websocket
+from .plugin import PLUGIN_ID, PluginError, install
 
 PROG = 'lapki-build'
 COMPILER = 'lapki-compiler'
@@ -220,6 +221,24 @@ def _run(options, workdir):  # pylint: disable=too-many-return-statements
     return _code(options, document, reply, out)
 
 
+def _install_plugin(target):
+    try:
+        folder = install(target or None)
+    except PluginError as e:
+        _error('--install-editor-plugin', e)
+        return EXIT_USAGE
+    print('installed the editor plugin {} {} to\n  {}\nit runs {}; restart '
+          'the editor'.format(PLUGIN_ID, __version__, folder, sys.executable))
+    try:
+        binding = documents.module().__name__ == 'CyberiadaML'
+    except documents.DocumentError:
+        binding = False
+    if not binding:
+        print('warning: this Python has no CyberiadaML binding '
+              '(libcyberiadamlpp-py): the builds need it')
+    return EXIT_OK
+
+
 def _terminated(signum, frame):
     # unwinds the run: a local compiler is stopped on the way out
     raise SystemExit(EXIT_TERMINATED)
@@ -233,8 +252,7 @@ def main(argv=None):
     except SystemExit as e:
         return e.code
     if options.install_editor_plugin is not None:
-        _error('--install-editor-plugin', 'not in this version')
-        return EXIT_USAGE
+        return _install_plugin(options.install_editor_plugin)
     if not options.command:
         parser.print_usage(sys.stderr)
         return EXIT_USAGE

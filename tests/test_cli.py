@@ -212,8 +212,7 @@ def test_timeout(binding, compiler, capsys, tmp_path):
     ['build', diagram('blinker')],
     ['code', diagram('blinker'), '--timeout', '-1'],
     ['make', diagram('blinker')],
-    [],
-    ['--install-editor-plugin']])
+    []])
 def test_usage(capsys, argv):
     assert run(capsys, *argv)[0] == 2
 
