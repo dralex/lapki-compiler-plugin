@@ -407,6 +407,11 @@ are recorded from the remote compiler once and reviewed.
 * On Windows the editor kills the plugin without SIGTERM: a local
   compiler outlives a Cancel there.
 * The firmware is not uploaded: that is `lapki-flasher`.
+* The conversion is the binding's: it drops `propagate` of an entry
+  behaviour and fails on a few documents of the Lapki corpus
+  (`tests/test_corpus.py`, the known cases).
+* The Lapki files of the early IDE have no `platformVersion`: the run
+  refuses them (`lapki-meta`), as the compiler would.
 
 ## Stages
 
