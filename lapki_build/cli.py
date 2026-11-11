@@ -25,8 +25,10 @@
 import argparse
 import os
 import shutil
+import signal
 import sys
 import tempfile
+import threading
 
 from . import __version__
 from . import check as checking
@@ -43,6 +45,7 @@ EXIT_OK = 0
 EXIT_FAILED = 1
 EXIT_USAGE = 2
 EXIT_COMPILER = 3
+EXIT_TERMINATED = 128 + signal.SIGTERM
 
 
 def _seconds(text):
@@ -217,6 +220,11 @@ def _run(options, workdir):  # pylint: disable=too-many-return-statements
     return _code(options, document, reply, out)
 
 
+def _terminated(signum, frame):
+    # unwinds the run: a local compiler is stopped on the way out
+    raise SystemExit(EXIT_TERMINATED)
+
+
 def main(argv=None):
     """Run the command; return the exit code."""
     parser = _parser()
@@ -230,6 +238,9 @@ def main(argv=None):
     if not options.command:
         parser.print_usage(sys.stderr)
         return EXIT_USAGE
+    previous = None
+    if threading.current_thread() is threading.main_thread():
+        previous = signal.signal(signal.SIGTERM, _terminated)
     workdir, temporary = options.workdir, not options.workdir
     if temporary:
         workdir = tempfile.mkdtemp(prefix=PROG + '-')
@@ -239,3 +250,5 @@ def main(argv=None):
         sys.stdout.flush()
         if temporary:
             shutil.rmtree(workdir, ignore_errors=True)
+        if previous is not None:
+            signal.signal(signal.SIGTERM, previous)

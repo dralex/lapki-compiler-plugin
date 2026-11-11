@@ -147,8 +147,10 @@ class Server:  # pylint: disable=too-many-instance-attributes,too-few-public-met
 
     status and accept spoil the handshake for the tests of the client."""
 
-    def __init__(self, handler, status='101 Switching Protocols', accept=None):
+    def __init__(self, handler, status='101 Switching Protocols', accept=None,  # pylint: disable=too-many-arguments,too-many-positional-arguments
+                 port=0, plain=None):
         self.handler = handler
+        self.plain = plain or {}    # path -> callable(sock): not WebSocket
         self.status = status
         self.accept = accept
         self.paths = []
@@ -157,7 +159,7 @@ class Server:  # pylint: disable=too-many-instance-attributes,too-few-public-met
         self.errors = []
         self.listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.listener.bind(('127.0.0.1', 0))
+        self.listener.bind(('127.0.0.1', port))
         self.listener.listen()
         self.listener.settimeout(POLL)
         self.port = self.listener.getsockname()[1]
@@ -196,6 +198,9 @@ class Server:  # pylint: disable=too-many-instance-attributes,too-few-public-met
                 name, _, value = line.partition(':')
                 headers[name.strip().lower()] = value.strip()
             self.headers.append(headers)
+            if self.paths[-1] in self.plain:
+                self.plain[self.paths[-1]](sock)
+                return
             key = headers.get('sec-websocket-key', '')
             accept = self.accept or base64.b64encode(hashlib.sha1(
                 (key + ws.GUID).encode()).digest()).decode()
