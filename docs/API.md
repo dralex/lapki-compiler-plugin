@@ -1,6 +1,6 @@
 # The Lapki Compiler Plugin Interface Specification
 
-Document version: 0.1 (2026-11-09)
+Document version: 0.2 (2026-11-11)
 
 The command `lapki-build`, the editor plugin descriptor and the modules
 of the package `lapki_build`. The reasons are in `ARCHITECTURE.md`.
@@ -194,7 +194,9 @@ The diagram in the Lapki dialect.
 
 Exceptions:
 
-* `DocumentError` - the diagram cannot be read or converted.
+* `DocumentError` - the diagram cannot be read or converted; also the
+  pure-Python module without the Lapki writer (`cyberiadaml-py` 1.8): the
+  message names the binding.
 
 ## Module server
 

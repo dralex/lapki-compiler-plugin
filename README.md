@@ -26,12 +26,12 @@ The documentation is located in the `docs` directory and contains:
 ## Requirements
 
 * python3 (version 3.8+)
-* the `CyberiadaML` module: libcyberiadamlpp-py (version 1.0.8+) or, when
-  it is not installed, cyberiadaml-py (version 1.8+), its pure-Python
-  interface
+* the `CyberiadaML` module: libcyberiadamlpp-py (version 1.1.0+), the
+  writer of the Lapki dialect the compiler reads; cyberiadaml-py (version
+  1.8+), its pure-Python interface, has no Lapki writer yet
 * lapki-compiler - installed on this computer (`lapki-compiler` on `PATH`
-  or a path in the settings) with the toolchains of its platforms, or a
-  remote server
+  or a path in the settings, Python 3.10-3.11) with the toolchains of its
+  platforms, or a remote server
 * CyberiadaPro with the plugin conditions (`requires`, `when`) - for the
   editor plugin
 * pytest - for the tests

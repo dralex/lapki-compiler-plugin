@@ -1,6 +1,6 @@
 # The Lapki Compiler Plugin Architecture
 
-Document version: 0.1 (2026-11-09)
+Document version: 0.2 (2026-11-11)
 
 The plugin brings `lapki-compiler` into `CyberiadaPro`: it sends the open
 diagram to the compiler and gives the editor back what the compiler made -
@@ -38,7 +38,7 @@ installed one for the run or connects to a remote one by a link.
 | R5 | Send the compiler the Lapki dialect it reads, made from the editor's Cyberiada 1.0 by the `CyberiadaML` module. | The document |
 | R6 | Show the build log in the output tab and the failures as diagnostics on the state machines. | The results |
 | R7 | Grey the actions out on a diagram without a platform: declare the conditions to the editor. | The editor plugin |
-| R8 | Python 3.8+, the standard library and the `CyberiadaML` module only. | Code layout |
+| R8 | Python 3.8+, the standard library and the `CyberiadaML` module only (its binding for the Lapki writer). | Code layout |
 | R9 | Run as the command `lapki-build` too, for scripts and the tests. | The interface |
 
 ## The run
@@ -88,7 +88,10 @@ build the XML itself:
 
 The module is the binding of `libcyberiadamlpp-py` when it is installed,
 else the pure-Python interface of `cyberiadaml-py`
-(`cyberiadaml_py.cml`), as in `fa-dispatcher-py`. The document gives the
+(`cyberiadaml_py.cml`), as in `fa-dispatcher-py`. The pure-Python
+interface reads the diagram but has no Lapki writer yet (`cyberiadaml-py`
+1.8, `docs/CML.md`): with it the run stops with the document error, so a
+build needs the binding. The document gives the
 plugin the ids and the names of the machines (the reply is keyed by the
 ids) and the platform with its version. The meta is the document's: all
 its machines share the platform.
@@ -114,6 +117,11 @@ The local compiler lives for one run:
   the exit <-- kill <-- terminate, 3 s <-- GET /kill, 1 s <-------------- the end
                                                                     (done, error, SIGTERM)
 ```
+
+The plugin makes `<workdir>` before the spawn: the compiler creates its
+token file there but not the directory. The compiler opens the port after
+loading its platforms. `/kill` exits the compiler without an HTTP answer:
+a closed connection is the success.
 
 It is started as Lapki IDE starts it (`ModuleManager.ts`):
 
@@ -152,15 +160,24 @@ frames.
                                      "fileContent": "<text>" } ] } } }
 ```
 
+* `name` is the machine id. An OK reply leaves the connection open.
 * A machine the compiler rejects has the command `Валидация МС` with the
-  return code -1 and the message in `stderr`.
+  return code -1 and the message in `stderr`; a missing `platformVersion`
+  is such a rejection.
 * An internal error (an unreadable diagram, an unknown platform, a
-  program of the toolchain not found) is the machine `""` with the
-  command `compiler job`, the return code -2 and `Internal error!`.
+  program of the toolchain not found, a tool output not in UTF-8) is the
+  machine `""` with the command `compiler job`, the return code -2 and
+  `Internal error!`; the compiler closes the connection after it.
 * A machine of a platform that is not compiled (`compile: false`, the
-  Berloga platforms) is left out of the reply.
-* The compiler takes frames up to 256 KiB (`--max-msg-size`); a larger
-  diagram closes the connection with the code 1009.
+  Berloga platforms) is left out of the reply before any validation;
+  with no machine left the reply is `{"result": "OK", "state_machines": {}}`.
+* The compiler takes messages up to 256 KiB (`--max-msg-size`); a larger
+  diagram closes the connection with the code 1009 and no reply.
+* The id check of the compiler is broken (`CGML.py`: the pattern and the
+  string are swapped): only an empty id is rejected, an id with the regular
+  expression characters fails with -2. `lapki-id` is the plugin's own rule.
+* The command of a reply is shown as the platform declares it, before the
+  substitution of `{library_dir}`, `{base_dir}`, `{artifacts_dir}`.
 
 `websocket.py` is a client of RFC 6455 on `socket` and `ssl`: the
 handshake, masked frames, the 7, 16 and 64-bit lengths, fragmented
@@ -174,8 +191,9 @@ server side.
    <machine>/                  the machine name, else its id; its sketch.* replaced
      sketch.ino                the sources: sketch.<main>, sketch.<header>
      sketch.h
-     sketch.ino.hex            the firmware: <filename>.<extension> of the reply
-     sketch.ino.with_bootloader.hex
+     sketch.ino.hex            the firmware: <filename>.<extension> of the reply,
+     sketch.ino.with_bootloader.hex   every file of it (AVR: .hex, .eep, .elf,
+     ...                              .with_bootloader.hex, .with_bootloader.bin)
 ```
 
 The build log goes to stdout, a block per machine: its commands with the
@@ -318,8 +336,8 @@ The package is `lapki_build`, not `compiler`: that is the package of
 
 | Package | Needs |
 |---|---|
-| `python3-lapki-compiler-plugin` (deb, `all`) | `python3 (>= 3.8)`, `python3-libcyberiadamlpp (>= 1.1.0)` or `python3-cyberiadaml (>= 1.8.0)`; enhances `cyberiada-pro` |
-| `lapki-compiler-plugin` (wheel) | `cyberiadaml-py` 1.8+, or the binding installed apart |
+| `python3-lapki-compiler-plugin` (deb, `all`) | `python3 (>= 3.8)`, `python3-libcyberiadamlpp (>= 1.1.0)`; enhances `cyberiada-pro` |
+| `lapki-compiler-plugin` (wheel) | the binding installed apart (`cyberiadaml-py` 1.8 has no Lapki writer) |
 
 `lapki-compiler` is not a dependency: it is installed apart (pip, the
 Lapki IDE bundle), or a remote one is used. The packages are built and
@@ -331,7 +349,7 @@ plugins.
 | Layer | What | Needs |
 |---|---|---|
 | WebSocket | the frames, the lengths, the fragments, ping, close, 1009 | a stdlib test server |
-| the document | the Lapki XML of the test diagrams; the corpus of `cyberiadaml-py`: Lapki -> Cyberiada 1.0 -> the plugin -> the fields `lapki-compiler` reads, as recorded (`tests/legacy/lapki-compiler-view.json`) | the sibling `cyberiadaml-py`, else skipped |
+| the document | the Lapki XML of the test diagrams; the corpus of `cyberiadaml-py`: Lapki -> Cyberiada 1.0 -> the plugin -> the fields `lapki-compiler` reads, as recorded (`tests/legacy/lapki-compiler-view.json`); the document error of the pure-Python interface | the binding and the sibling `cyberiadaml-py`, else skipped |
 | the command | build, code, check against a stub compiler replaying the reply shapes of the compiler | - |
 | the local compiler | spawn, the port, `/kill`, SIGTERM, a dead child | a fake `lapki-compiler` script |
 | the editor | the descriptor; `--list-plugins`; a batch build against the stub; the actions refused with the reason on a course diagram and on a diagram without `platformVersion` | `CyberiadaPro` with the conditions (`CYBERIADA_PRO`), else skipped |
@@ -358,7 +376,7 @@ are recorded from the remote compiler once and reviewed.
 
 | Need | Reused | Not reused |
 |---|---|---|
-| the Lapki dialect | `formatLapki` of `libcyberiadaml` through the `CyberiadaML` module | - |
+| the Lapki dialect | `formatLapki` of `libcyberiadaml` through the binding | the writer of `cyberiadaml_py.cml`: not there yet |
 | the module choice | the binding, else `cyberiadaml_py.cml` (`fa-dispatcher-py/fad/reader.py`) | - |
 | the local compiler | the arguments and `/kill` of Lapki IDE (`ModuleManager.ts`) | - |
 | the plugin installation | `hsm_maker/plugin.py`, adapted | no package shared by the plugins |
@@ -374,8 +392,11 @@ are recorded from the remote compiler once and reviewed.
   runs fails the whole request with `Internal error!`, without the sources;
   Check names the missing program of a local compiler.
 * The compiler waits for a command before it reads its output
-  (`Compiler.py`): a command printing more than a pipe holds hangs until
-  the timeout.
+  (`Compiler.py`): a command printing more than about 192 KiB to one
+  stream hangs until the timeout, and the compiler never stops it.
+* The compiler copies the platform libraries with `cp` it does not wait
+  for (`os_commands/posix.py`): a loaded server may fail a build at random.
+* The compiler needs Python 3.10 or 3.11 (`aiohttp` 3.8.4, `aiopath` 0.6).
 * The firmware loses the subdirectories of the build: the reply keeps the
   base names only.
 * All the machines of the document are built: the editor gives the plugin
