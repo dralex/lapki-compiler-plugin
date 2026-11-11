@@ -123,6 +123,15 @@ def test_no_meta(binding, compiler, capsys, tmp_path):
     assert compiler.received == []
 
 
+def test_no_platform(binding, compiler, capsys, tmp_path):
+    code, out, err = run(capsys, 'code', diagram('no-platform'), '--server',
+                         compiler.link)
+    assert (code, err) == (1, '')
+    assert out == ('error: lapki-meta: the diagram has no platform\n'
+                   'error: lapki-meta: the diagram has no platformVersion\n')
+    assert compiler.received == []
+
+
 def test_code(binding, compiler, capsys):
     compiler.replies.append(reply(machine('G0')))
     code, out, _ = run(capsys, 'code', diagram('blinker'), '--server',

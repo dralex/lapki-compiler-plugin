@@ -39,7 +39,7 @@ from conftest import BINDING, GOOD, diagram
 from lapki_build import cli
 
 CASES = ['blinker', 'two-machines', 'ms1-button', 'berloga', 'rejected',
-         'invalid-event', 'build-error', 'no-version']
+         'invalid-event', 'build-error', 'no-version', 'no-platform']
 # the programs a local compiler needs beside arduino-cli
 NEEDS = {'ms1-button': 'arm-none-eabi-g++'}
 TIMEOUT = '600'

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns">
+  <data key="gFormat">Cyberiada-GraphML-1.0</data>
+  <key id="gFormat" for="graphml" attr.name="format" attr.type="string" />
+  <key id="dName" for="graph" attr.name="name" attr.type="string" />
+  <key id="dName" for="node" attr.name="name" attr.type="string" />
+  <key id="dStateMachine" for="graph" attr.name="stateMachine" attr.type="string" />
+  <key id="dGeometry" for="node" attr.name="geometry" />
+  <key id="dNote" for="node" attr.name="note" attr.type="string" />
+  <key id="dVertex" for="node" attr.name="vertex" attr.type="string" />
+  <key id="dData" for="node" attr.name="data" attr.type="string" />
+  <key id="dData" for="edge" attr.name="data" attr.type="string" />
+  <graph id="G0" edgedefault="directed">
+    <data key="dStateMachine" />
+    <data key="dName">Blinker</data>
+    <node id="nMeta">
+      <data key="dNote">formal</data>
+      <data key="dName">CGML_META</data>
+      <data key="dData">standardVersion/ 1.0
+
+name/ No platform</data>
+    </node>
+    <node id="cled">
+      <data key="dNote">formal</data>
+      <data key="dName">CGML_COMPONENT led</data>
+      <data key="dData">type/ LED
+
+pin/ 13</data>
+    </node>
+    <node id="ctimer">
+      <data key="dNote">formal</data>
+      <data key="dName">CGML_COMPONENT timer</data>
+      <data key="dData">type/ Timer</data>
+    </node>
+    <node id="G0init">
+      <data key="dVertex">initial</data>
+      <data key="dGeometry">
+        <point x="20" y="20" />
+      </data>
+    </node>
+    <node id="G0on">
+      <data key="dName">On</data>
+      <data key="dGeometry">
+        <rect x="60" y="60" width="300" height="90" />
+      </data>
+      <data key="dData">entry/
+led.on();
+timer.start(500);</data>
+    </node>
+    <node id="G0off">
+      <data key="dName">Off</data>
+      <data key="dGeometry">
+        <rect x="60" y="260" width="300" height="90" />
+      </data>
+      <data key="dData">entry/
+led.off();
+timer.start(500);</data>
+    </node>
+    <edge id="G0e0" source="G0init" target="G0on" />
+    <edge id="G0e1" source="G0on" target="G0off">
+      <data key="dData">timer.timeout/</data>
+    </edge>
+    <edge id="G0e2" source="G0off" target="G0on">
+      <data key="dData">timer.timeout/</data>
+    </edge>
+  </graph>
+</graphml>

@@ -187,7 +187,9 @@ The diagram in the Lapki dialect.
   order.
 * `Document.platform`, `Document.platform_version` - the meta values,
   `''` when absent.
-* `Document.xml` - the Lapki XML text sent to the compiler.
+* `Document.xml` - the Lapki XML text sent to the compiler; `''` without
+  `platform`: the binding writes no Lapki dialect then, and the run reports
+  `lapki-meta`.
 * `Document.missing_meta()` - the absent keys of `platform` and
   `platformVersion`.
 * `Document.name(id)` - the machine name, else its id.

@@ -60,6 +60,13 @@ def test_missing_meta(binding, tmp_path):
     assert doc.missing_meta() == ['platformVersion']
 
 
+def test_no_platform(binding, tmp_path):
+    doc = document.load(diagram('no-platform'), str(tmp_path))
+    assert doc.missing_meta() == ['platform', 'platformVersion']
+    assert doc.xml == '' and doc.path is None
+    assert doc.machines == [document.Machine('G0', 'Blinker')]
+
+
 def test_unreadable(binding, tmp_path):
     bad = tmp_path / 'bad.graphml'
     bad.write_text('<graphml>no diagram')

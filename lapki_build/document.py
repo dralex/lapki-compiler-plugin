@@ -97,6 +97,9 @@ def load(path, workdir):
         platform, version = (meta.get_string(key) for key in META_KEYS)
     except Exception as e:  # pylint: disable=broad-except
         raise DocumentError(_message(e)) from e
+    if not platform:
+        # the binding writes no Lapki dialect without it: lapki-meta tells
+        return Document(machines, platform, version, '')
     try:
         xml = doc.encode(cyb.formatLapki)
     except Exception as e:  # pylint: disable=broad-except
