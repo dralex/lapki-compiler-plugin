@@ -61,3 +61,7 @@ The tests need no compiler and no network: a local stub plays the
 compiler. The runs against a real compiler are opt-in:
 `LAPKI_COMPILER_URL=ws://ide.polyus-nt.ru:8084` for the remote one,
 `LAPKI_COMPILER=<path>` for an installed one.
+
+The tests converting a diagram need the binding and are skipped without
+it. The expected results of the real compiler (`tests/good`) are recorded
+with `python3 -B tests/test_compiler.py ws://ide.polyus-nt.ru:8084`.

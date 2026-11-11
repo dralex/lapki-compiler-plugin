@@ -60,6 +60,7 @@ of the commands; `check` prints its findings, one a line:
 | 1 | `build`, `code`: a machine failed or was rejected, or the document is not buildable; the findings are written |
 | 2 | a usage error: an unknown option, an unreadable `INPUT`, an unwritable `OUTDIR` |
 | 3 | `build`, `code`: no compiler - not found, not started, the connection refused or lost, the timeout, an unreadable reply |
+| 143 | SIGTERM: the local compiler is stopped first |
 
 Errors are one line on stderr: `lapki-build: <what>: <why>`.
 
@@ -189,6 +190,9 @@ The diagram in the Lapki dialect.
 * `Document.xml` - the Lapki XML text sent to the compiler.
 * `Document.missing_meta()` - the absent keys of `platform` and
   `platformVersion`.
+* `Document.name(id)` - the machine name, else its id.
+* `Document.size()` - the size of the Lapki XML in bytes.
+* `Document.path` - the Lapki file written into `workdir`.
 * `module()` - the `CyberiadaML` module in use: the binding, else
   `cyberiadaml_py.cml`; `LAPKI_BUILD_BACKEND=cml` chooses the second.
 
@@ -210,8 +214,10 @@ The compiler of a run.
 * `find_compiler(compiler)` - the path of the executable, or `None`.
 * `LocalCompiler(executable, workdir, start_timeout=START_TIMEOUT)` - the
   local compiler: `start()` spawns it on a free port and waits for the
-  port, `stop()` asks `/kill`, then terminates and kills; `url`, `port`;
-  a context manager. SIGTERM of the plugin stops it.
+  port, `stop()` asks `/kill`, then terminates and kills; `url`, `port`,
+  `arguments()` - the command line, `tail()` - the end of its output in
+  `<workdir>/compiler.out`; a context manager. SIGTERM of the plugin stops
+  it: the command exits with 143.
 * `START_TIMEOUT` - 30 s.
 
 Exceptions:
@@ -229,12 +235,19 @@ Exceptions:
   `dict`.
 * `write_diagnostics(path, items)` - write the diagnostics file.
 * `first_error(stderr)` - the first error line of a command's stderr.
+* `finding(severity, rule, message, element=None)` - one diagnostic.
+* `meta_findings(document)` - the `lapki-meta` findings.
+* `print_findings(items, out)` - the findings, one a line.
+
+The log and the first error line lose the terminal colours of the tools;
+a `lapki-build` message loses the directories of the paths in it.
 
 ## Module check
 
-* `check(document, url, compiler)` - the findings of Check: the ids, the
-  size, the platform on the compiler, the toolchain of a local compiler
-  (`compiler` is `None` for a remote one).
+* `check(document, url, compiler, timeout=None)` - the findings of Check:
+  the meta, the ids, the size, the platform on the compiler, the toolchain
+  of a local compiler (`compiler` is `None` for a remote one); without
+  `url` only the document.
 
 ## Module plugin
 

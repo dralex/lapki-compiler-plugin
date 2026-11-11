@@ -360,7 +360,8 @@ The test diagrams:
 
 * `tests/diagrams/` - our own, small: an Arduino Uno blinker, an MS-TYuK
   button (`tjc-ms1-btn-a2`), two machines, a Berloga machine (skipped), no
-  `platformVersion`, a rejected component.
+  `platformVersion`, an unknown component type (-2), an unknown event of a
+  component (-1), an undeclared component (the build fails).
 * the Lapki sets of the project, used where they are, not copied (GPL-3):
   `cyberiadaml-compat-tests/fixtures/dialect/lapki` (21 Arduino Uno, 13
   MS-TYuK, ...) and `lapki-compiler/examples`; `LAPKI_EXAMPLES` points
