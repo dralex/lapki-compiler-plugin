@@ -246,7 +246,7 @@ editor.
  +-----------------------------+            +--------------------+
  | Lapki Compiler            > |            | Lapki Compiler [>] |   [>] build
  +-----------------------------+            +--------------------+
-   | Build                     |
+   | Build...                  |
    | Show the code             |
    | Check                     |
    |---------------------------|
@@ -260,30 +260,32 @@ editor.
  | Local compiler   [lapki-compiler               ] |
  | Timeout, s       [300                          ] |
  | Output directory [~/diagrams/blinker-build][...] |
- |                                [Cancel]   [OK]   |
+ |                              [Cancel]   [Save]   |
  +--------------------------------------------------+
 ```
 
 | Action | Result | The command after `python3 -m lapki_build` |
 |---|---|---|
-| `build` - Build | `files` | `build ${input} -o ${outdir} --diagnostics ${diagnostics}` + the compiler options |
+| `build` - Build... | `files` | `build ${input} -o ${outdir} --diagnostics ${diagnostics}` + the compiler options |
 | `code` - Show the code | `log` | `code ${input} --diagnostics ${diagnostics}` + the compiler options |
 | `check` - Check | `diagnostics` | `check ${input} --diagnostics ${diagnostics}` + the compiler options |
 
 The compiler options are `[--server ${param:server}] --compiler
 ${param:compiler} --workdir ${rundir} --timeout ${param:timeout}`; the
 server is passed only when it is set. The output directory is a
-`document` parameter, asked at the first build of a document file
-(`${document_dir}/${document_name}-build`); the others are kept per user.
+required `document` parameter, asked at the first build of a document file
+(`${document_dir}/${document_name}-build`, empty for an untitled one); the
+others are kept per user. The actions have no editor timeout (it would
+kill the run before `--timeout`); Cancel stops a run.
 
 Every action declares the document conditions of the editor
 (`PLUGIN-API.md`, Conditions):
 
-    "when": ["sm", "meta:platform", "meta:platformVersion"],
+    "when": ["sm", "!fa", "meta:platform", "meta:platformVersion"],
     "reason": "Set the platform and its version in the diagram (e.g. ArduinoUno 1.0)"
 
-The editor greys the actions out on a diagram without them, with the
-reason in the tooltip. The plugin never fills the meta. It declares no
+The editor greys the actions out on a diagram without them and on a
+finite automaton, with the reason in the tooltip. The plugin never fills the meta. It declares no
 `requires`: `programs` sees only `PATH`, not the remote link, so a
 missing local compiler is told by the run. An editor before the
 conditions ignores them; the run then reports `lapki-meta`.
@@ -333,6 +335,11 @@ The package is `lapki_build`, not `compiler`: that is the package of
                                                  v
                                   <user folder>/lapki-compiler/   (argv[0] = <prefix>'s Python)
 ```
+
+A source tree installs itself the same way (`python3 -m lapki_build
+--install-editor-plugin`); its descriptor then also sets `PYTHONPATH` (the
+tree and the installer's) and the installer's `LD_LIBRARY_PATH`, which the
+binding of a prefix without rpath needs: the editor's `env` replaces them.
 
 | Package | Needs |
 |---|---|

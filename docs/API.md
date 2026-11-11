@@ -89,24 +89,31 @@ its first line that is not empty.
 ## The editor plugin
 
 `editor-plugin/plugin.json`, `api` 1, id `lapki-compiler`, name `Lapki
-Compiler`, interpreter `python3`, `env` `{"PYTHONUTF8": "1"}`.
+Compiler`, `version` the version of the package, a `description` saying
+that a set remote compiler gets the diagram, interpreter `python3`, `env`
+`{"PYTHONUTF8": "1"}`.
 
 | Parameter | Type | Scope | Default | Label |
 |---|---|---|---|---|
 | `server` | `string` | `persistent` | empty | Remote compiler |
 | `compiler` | `string` | `persistent` | `lapki-compiler` | Local compiler |
 | `timeout` | `int` (0-3600) | `persistent` | 300 | Timeout, s |
-| `outdir` | `dir`, `create` | `document` | `${document_dir}/${document_name}-build` | Output directory |
+| `outdir` | `dir`, `create`, `required` | `document` | `${document_dir}/${document_name}-build` | Output directory |
 
 | Action | Label | Result | `exit_ok` | Timeout | Parameters |
 |---|---|---|---|---|---|
-| `build` | Build | `files`, `outdir: outdir`, toolbar | `[0, 1]` | 600 | all |
-| `code` | Show the code | `log` | `[0, 1]` | 600 | `server`, `compiler`, `timeout` |
-| `check` | Check | `diagnostics` | `[0]` | 120 | `server`, `compiler`, `timeout` |
+| `build` | Build... | `files`, `outdir: outdir`, toolbar | `[0, 1]` | 0 | all (no `parameters` key) |
+| `code` | Show the code | `log` | `[0, 1]` | 0 | `server`, `compiler`, `timeout` |
+| `check` | Check | `diagnostics` | `[0]` | 0 | `server`, `compiler`, `timeout` |
+
+The editor kills a run at the action timeout whatever `${param:timeout}`
+says, so the actions have none: the run waits by its own limits (the
+connection and the start 30 s, the reply `--timeout`). An exit code 3 (no
+compiler) fails the run with the error line of the command.
 
 Every action has
 
-    "when": ["sm", "meta:platform", "meta:platformVersion"],
+    "when": ["sm", "!fa", "meta:platform", "meta:platformVersion"],
     "reason": "Set the platform and its version in the diagram (e.g. ArduinoUno 1.0)"
 
 and no `requires`. The argv of `build`:
@@ -259,7 +266,12 @@ a `lapki-build` message loses the directories of the paths in it.
   folder.
 * `install(target=None, executable=None)` - copy the plugin into `target`
   or the user folder as `lapki-compiler`, every command started by
-  `executable` (the running Python by default). Raises `PluginError`.
+  `executable` (the running Python by default); return the folder. From a
+  source tree the descriptor `env` gets `PYTHONPATH` = the tree + the
+  `PYTHONPATH` of the installing process, and its `LD_LIBRARY_PATH` when
+  set: the editor's `env` replaces them, and the binding may live in a
+  prefix. Raises `PluginError`.
+* `PLUGIN_ID` - `lapki-compiler`.
 
 ## Module cli
 
