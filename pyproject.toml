@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lapki-compiler-plugin"
+version = "0.1.0"
+description = "The Lapki Compiler plugin of CyberiadaPro: the build of a diagram with lapki-compiler"
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [{name = "Alexey Fedoseev", email = "aleksey@fedoseev.net"}]
+classifiers = [
+    "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
+    "Programming Language :: Python :: 3",
+]
+
+# the Lapki dialect needs the CyberiadaML binding of libcyberiadamlpp-py 1.1
+# (its own build or package, not on PyPI): cyberiadaml-py has no writer of it
+dependencies = []
+
+[project.scripts]
+lapki-build = "lapki_build.cli:main"
+
+[tool.setuptools]
+packages = ["lapki_build"]
+
+# the editor plugin under the install prefix; lapki-build --install-editor-plugin
+# copies it into the plugin folder of the editor
+[tool.setuptools.data-files]
+"share/cyberiada-pro/plugins/lapki-compiler" = [
+    "editor-plugin/plugin.json", "editor-plugin/README.md"]
+"share/cyberiada-pro/plugins/lapki-compiler/i18n" = ["editor-plugin/i18n/ru.json"]
+"share/cyberiada-pro/plugins/lapki-compiler/icons" = [
+    "editor-plugin/icons/build.svg", "editor-plugin/icons/code.svg",
+    "editor-plugin/icons/check.svg"]

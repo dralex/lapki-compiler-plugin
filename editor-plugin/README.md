@@ -8,6 +8,15 @@ set, the diagram is sent to that server and nothing runs locally.
 
 ## Installation
 
+* The Debian package `python3-lapki-compiler-plugin` puts the plugin into
+  the editor's system folder `/usr/share/cyberiada-pro/plugins/`: nothing to
+  copy.
+* With pip, the package installed together with the binding into one
+  Python, then the plugin copied and bound to it:
+
+      pip install /path/to/lapki-compiler-plugin
+      lapki-build --install-editor-plugin
+
 * From the source tree, with the `CyberiadaML` binding (libcyberiadamlpp-py)
   importable by the Python that runs the command:
 

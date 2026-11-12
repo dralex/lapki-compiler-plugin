@@ -1,0 +1,27 @@
+set(CPACK_VERBATIM_VARIABLES YES)
+set(CPACK_PACKAGE_VERSION_MAJOR @PROJECT_VERSION_MAJOR@)
+set(CPACK_PACKAGE_VERSION_MINOR @PROJECT_VERSION_MINOR@)
+set(CPACK_PACKAGE_VERSION_PATCH @PROJECT_VERSION_PATCH@)
+set(CPACK_PACKAGE_VENDOR "Kruzhok Association")
+set(CPACK_PACKAGE_CONTACT "aleksey@fedoseev.net")
+set(CPACK_RESOURCE_FILE_LICENSE "@PROJECT_SOURCE_DIR@/LICENSE")
+set(CPACK_RESOURCE_FILE_README "@PROJECT_SOURCE_DIR@/README.md")
+
+# the pure Python package, the command and the plugin of the editor
+set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "all")
+set(CPACK_DEBIAN_PACKAGE_NAME "python3-lapki-compiler-plugin")
+set(CPACK_DEBIAN_PACKAGE_SECTION "python")
+set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "The Lapki Compiler plugin of the CyberiadaPro state machine editor
+Builds the state machines of the open diagram with lapki-compiler: the
+sources and the firmware of its platform (Arduino Uno, MS-TYuK, ...), the
+build log and the failures in the editor. The compiler is the installed one
+or a remote server. The command lapki-build and the package lapki_build.")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "python3 (>= 3.8), python3-libcyberiadamlpp (>= 1.1.0)")
+set(CPACK_DEBIAN_PACKAGE_ENHANCES "cyberiada-pro")
+
+# a per-release build tags the version (e.g. 0.1.0+ubuntu2404)
+set(DISTRO_TAG "@DISTRO_TAG@")
+if(NOT DISTRO_TAG STREQUAL "")
+  set(CPACK_DEBIAN_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION}+${DISTRO_TAG}")
+endif()

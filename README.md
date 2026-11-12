@@ -37,6 +37,23 @@ The documentation is located in the `docs` directory and contains:
 * pytest - for the tests
 * cmake (version 3.16+) - for the Debian package
 
+## Installation
+
+The Debian package - the package `lapki_build`, `lapki-build`, the editor
+plugin in `/usr/share/cyberiada-pro/plugins/lapki-compiler` and the
+documentation:
+
+    cmake -B build && cd build && ctest && cpack -G DEB
+    sudo apt install ./python3-lapki-compiler-plugin_0.1.0_all.deb
+
+With pip, then the plugin copied into the user plugin folder of the editor,
+bound to that Python:
+
+    pip install /path/to/lapki-compiler-plugin
+    lapki-build --install-editor-plugin
+
+The editor plugin itself is described in `editor-plugin/README.md`.
+
 ## Usage
 
     lapki-build build blinker.graphml -o build
@@ -56,6 +73,7 @@ remote compiler and the local one are set in Settings...
 ## Tests
 
     python3 -B -m pytest -q tests
+    cmake -B build && cd build && ctest
 
 The tests need no compiler and no network: a local stub plays the
 compiler. The runs against a real compiler are opt-in:
